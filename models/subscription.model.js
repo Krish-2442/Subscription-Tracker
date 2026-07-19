@@ -66,6 +66,9 @@ const subscriptionSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Auto calculate renewal date if missing, based on start date and frequency
+// pre() is calles middleware (or hook) : Before this operation happens, run this function first.
+// pre("save") : before save
+// pre("validate") : before validation
 subscriptionSchema.pre("save", async function (next) {
     if(!this.renewalDate) {
         const renewalPeriod = {
@@ -74,6 +77,9 @@ subscriptionSchema.pre("save", async function (next) {
             monthly: 30,
             yearly: 365,
         }
+
+        // doing -> this.renewalDate = this.startDate; because that would point both variables to the same Date object.
+        // so create new Copy
         this.renewalDate = new Date(this.startDate);
         this.renewalDate.setDate(this.renewalDate.getDate() + renewalPeriod[this.frequency.toLowerCase()]);
     }

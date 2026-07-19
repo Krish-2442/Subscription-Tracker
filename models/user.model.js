@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Schema : define the structure of document
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -23,5 +24,7 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// model("ModelName", schema) : provides method to interact with MongoDB collection and perform operations like create(), find(), update(), delete() etc.
+// User is model object
 const User = mongoose.model("User", userSchema);
 export default User;
