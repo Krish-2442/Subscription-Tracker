@@ -15,16 +15,22 @@ export const createSubscription = async (req, res, next) => {
                 subscriptionId: subscription.id,
             },
             headers: {
-                'content-type': 'application/json',
+                "content-type": "application/json",
             },
             retries: 0,
-        })
+        });
 
-        res.status(201).json({ success: true, data: subscription });
+        console.log(`Workflow created: ${workflowRunId}`);
+
+        return res.status(201).json({
+            success: true,
+            data: subscription,
+            workflowRunId,
+        });
     } catch (error) {
         next(error);
     }
-}
+};
 
 export const getUserSubscription = async (req, res, next) => {
     try {
