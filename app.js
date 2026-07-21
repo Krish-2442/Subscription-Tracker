@@ -11,6 +11,8 @@ import subscriptionRoutes from "./routes/subscription.routes.js";
 
 import connectToDatabase from "./database/mongodb.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
+import workflowRoutes from "./routes/workflow.routes.js";
 
 
 const app = express();
@@ -29,9 +31,12 @@ app.use(express.urlencoded({ extended: true }));
 // This is middleware that reads incoming cookies and makes them easy to use.
 app.use(cookieParser());
 
+app.use(arcjetMiddleware);
+
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/subscriptions', subscriptionRoutes);
 app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/workflows', workflowRoutes);
 
 // Register the global error handler after all routes and other middleware
 // so it can catch errors passed from them.

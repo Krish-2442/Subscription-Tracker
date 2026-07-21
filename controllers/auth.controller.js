@@ -7,11 +7,13 @@ import {JWT_EXPIRES_IN, JWT_SECRET} from "../config/env.js";
 
 
 export const signUp = async function (req, res, next) {
+    // start Database Transaction
+    // A transaction groups database changes together. If every step succeeds, it saves them; if something fails, it cancels them.
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-        // create a new user
+        // Get user data from request body
         const { name, email, password } = req.body;
 
         // check if user already exist
@@ -22,14 +24,18 @@ export const signUp = async function (req, res, next) {
             throw error;
         }
 
-        // Hash Password
+        // Hash the Password
+        // A salt is random data added during password hashing. It ensures that two users using the same password do not get the same stored hash.
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUsers = new User({ name, email, password: hashedPassword });
+
+        // Save the new user to the database within the transaction session
         await newUsers.save({ session });
 
-        // token generation
+        // generate fresh new Token
+        // syntax of token.sign(payload, secretKey, options)
         const token = jwt.sign({userId: newUsers._id}, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
         await session.commitTransaction();
@@ -62,7 +68,7 @@ export const signIn = async function (req, res, next) {
             throw error;
         }
 
-        // token generation
+        // generate fresh new Token
         const token = jwt.sign({userId: user._id}, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
         res.status(200).json({ message: 'User signed in successfully', user, token });

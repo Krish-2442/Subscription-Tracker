@@ -1,8 +1,10 @@
+// authorization part is here
 import User from "../models/user.model.js";
 
 export const getUsers = async function (req, res, next)  {
     try {
-        const users = await User.find();
+        // use .select('-password') to exclude the password field from the returned user documents
+        const users = await User.find().select('-password');
         res.status(200).json({ success: true, data: users });
     } catch (error) {
         next(error);

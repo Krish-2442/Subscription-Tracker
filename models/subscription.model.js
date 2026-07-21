@@ -21,7 +21,8 @@ const subscriptionSchema = new mongoose.Schema({
     },
     frequency: {
         type: String,
-        enum: ['Daily', 'Weekly', 'Monthly', 'Yearly'],
+        enum: ['daily', 'weekly', 'monthly', 'yearly'],
+        required: true,
     },
     category: {
         type: String,
@@ -35,7 +36,7 @@ const subscriptionSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Active', 'Cancelled', 'Expired'],
+        enum: ['pending', 'active', 'cancelled', 'expired'],
         default: 'active',
     },
     startDate: {
@@ -52,9 +53,9 @@ const subscriptionSchema = new mongoose.Schema({
         type: Date,
         validate: {
             validator: function(value) {
-                return value > this.endDate
+                return value > this.startDate
             },
-            message: "Renewal Date must be after end date",
+            message: "Renewal Date must be after start date",
         }
     },
     user: {
@@ -69,7 +70,7 @@ const subscriptionSchema = new mongoose.Schema({
 // pre() is calles middleware (or hook) : Before this operation happens, run this function first.
 // pre("save") : before save
 // pre("validate") : before validation
-subscriptionSchema.pre("save", async function (next) {
+subscriptionSchema.pre("save", function () {
     if(!this.renewalDate) {
         const renewalPeriod = {
             daily: 1,
@@ -86,9 +87,8 @@ subscriptionSchema.pre("save", async function (next) {
 
     // Auto update the status if renewal date has passed
     if(this.renewalDate < new Date()) {
-        this.status = 'Expired';
+        this.status = 'expired';
     }
-    next();
 });
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
